@@ -1,4 +1,4 @@
-# erimentha
+# Erimentha
 
 # **AI-Powered NPC Dialogue System**
 
