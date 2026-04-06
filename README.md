@@ -1,7 +1,7 @@
 # Capstone RPG Project
 
 > A 2D action RPG with a novel **pre-rendered LLM dialogue system** as its academic centerpiece.
-> Built for the BASc Application Development capstone — designed to run fully offline.
+> Designed to run fully offline.
 
 ---
 
@@ -12,7 +12,6 @@
 - [Architecture and Technical Stack](#architecture-and-technical-stack)
   - [System Diagram](#system-diagram)
   - [Tools and Technologies](#tools-and-technologies)
-  - [Hardware Targets](#hardware-targets)
 - [Phase-by-Phase Roadmap](#phase-by-phase-roadmap)
 
 ---
@@ -89,38 +88,27 @@ Keeping scope small is a deliberate choice, not a compromise. The LLM pipeline i
 | Layer | Tool / Technology |
 |---|---|
 | Game Engine | Godot 4 (GDScript) |
-| LLM Serving | Ollama (installed via official install script) |
+| LLM Serving | Ollama |
 | Active Model | Qwen3 8B (`qwen3:8b`) |
 | LLM Pipeline | Python 3 scripts |
 | Data Interchange | JSON files (`game_state.json`, `dialogue_<npc>.json`) |
-| Operating System | Nobara Linux 43, KDE Plasma, Wayland |
-| GPU Acceleration | NVIDIA RTX 4060 (8GB VRAM) |
 
 **Model configuration note:** Qwen3's extended thinking mode is disabled for this use case via `"think": false` in the Ollama API request body. This avoids unnecessary overhead in NPC dialogue generation and keeps pipeline latency low.
 
-**Ollama installation note:** On Nobara Linux, Ollama must be installed via the official install script (`curl -fsSL https://ollama.com/install.sh | sh`). The Nobara RPM repository contains a broken package (`ollama version 0.0.0`) that silently falls back to CPU inference.
-
-### Hardware Targets
-
-| Machine | CPU | RAM | GPU | Notes |
-|---|---|---|---|---|
-| Desktop | AMD Ryzen 5 2600 (12 threads) | 32GB | NVIDIA RTX 4060 8GB (discrete) | Primary dev machine |
-| Laptop | (Acer Nitro) | -- | NVIDIA RTX 4060 Laptop 8GB (Optimus) | Secondary; requires GPU targeting verification via `nvidia-smi` |
-
-Both machines run Nobara Linux 43 with Ollama configured for GPU acceleration. The Ollama service is managed via systemd and exposes the model at `http://localhost:11434`. `OLLAMA_ORIGINS=*` is set via a systemd override to allow local tooling (e.g., test UIs) to connect.
+**System requirements:** Ollama requires a CUDA-capable GPU with sufficient VRAM to load the model (~6GB recommended for Qwen3 8B). The Ollama service exposes the model at `http://localhost:11434` and must be running before the pipeline is executed.
 
 ---
 
 ## Phase-by-Phase Roadmap
 
 ### Phase 1 -- Environment Setup ✅
-- [x] Install and configure Ollama on desktop and laptop via official install script
-- [x] Confirm GPU-accelerated inference (`ollama ps`, `nvidia-smi`)
-- [x] Pull and validate Qwen3 8B (`qwen3:8b`, ~5.45GB VRAM)
-- [x] Enable Ollama systemd service on desktop
-- [x] Resolve model storage location on desktop
-- [x] Build standalone local chatbot (`mistral-chat.html`) to test Ollama streaming API, persona switching, and tokens/sec stats
-- [x] Confirm `OLLAMA_ORIGINS=*` systemd override is in place on both machines
+- [x] Install and configure Ollama via official install script
+- [x] Confirm GPU-accelerated inference is active
+- [x] Pull and validate Qwen3 8B (`qwen3:8b`)
+- [x] Enable Ollama as a background service
+- [x] Confirm model storage location and resolve any redundant downloads
+- [x] Build standalone local test UI to validate Ollama streaming API, persona switching, and tokens/sec throughput
+- [x] Confirm cross-origin access is configured to allow local tooling to connect to Ollama
 
 ### Phase 2 -- Godot 4 Foundations
 - [ ] Install Godot 4 and configure project structure
