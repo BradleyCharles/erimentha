@@ -1,209 +1,168 @@
-# Erimentha
+# Capstone RPG Project
 
-# **AI-Powered NPC Dialogue System**
-
-### *Dynamic, Real-Time NPC Conversations Using Local LLMs and a Rust Inference Backend*
-
-## **Project Overview**
-
-This project is a Unity-based game that integrates real-time AI dialogue for NPCs using small, fast local language models running through a **Rust inference backend**. Instead of relying on fixed dialogue trees, NPCs generate responses dynamically—reacting to the player, referencing the game world, and maintaining personality consistency.
-
-The project blends modern lightweight LLMs (Phi-3.5-mini and Gemma-2-2B) with traditional game systems to create NPCs that feel alive while preserving developer control over tone, lore, and narrative boundaries.
-
-Everything runs **locally**, offline, and at zero cost.
+> A 2D action RPG with a novel **pre-rendered LLM dialogue system** as its academic centerpiece.
+> Built for the BASc Application Development capstone — designed to run fully offline.
 
 ---
 
-## **How AI Is Integrated Into the Game**
+## Table of Contents
 
-The AI component is responsible for only one part of the experience: **natural-language NPC dialogue**. Unity handles the world; the Rust backend handles the “brains.”
-
-### **Flow of AI Interaction**
-
-1. Player triggers dialogue in Unity
-2. Unity sends a structured prompt to the Rust inference server
-3. Rust runs the LLM locally using a high-performance wrapper around **llama.cpp**
-4. The generated response is returned to Unity
-5. Unity displays the NPC’s dialogue and updates characters’ emotional or quest states
-
-The conversation model is given context such as:
-
-* NPC personality
-* Quest state
-* Player reputation
-* Local lore and restrictions
-* Recent conversation history
-
-This prevents the model from hallucinating world details and keeps NPCs consistent.
+- [Project Overview](#project-overview)
+- [Desirable Outcomes](#desirable-outcomes)
+- [Architecture and Technical Stack](#architecture-and-technical-stack)
+  - [System Diagram](#system-diagram)
+  - [Tools and Technologies](#tools-and-technologies)
+  - [Hardware Targets](#hardware-targets)
+- [Phase-by-Phase Roadmap](#phase-by-phase-roadmap)
 
 ---
 
-## **Technology Stack**
+## Project Overview
 
-### **Game Engine**
+This project is a small-scope 2D action RPG built in **Godot 4**, where a player hunts rare monsters in a field outside town and interacts with NPCs who issue bounties and remember past events.
 
-**Unity**
-Chosen for its flexibility, asset ecosystem, C# scripting, and ease of integrating external processes through HTTP, TCP sockets, or local IPC. Unity controls game logic, animations, triggers, and dialogue UI.
+The game's defining architectural feature is its **pre-rendered LLM dialogue system**: rather than generating NPC dialogue at runtime, a Python pipeline powered by a locally-hosted large language model (LLM) processes the current game state at the start of each in-game day and writes contextually aware, personality-consistent dialogue to JSON files. Godot then reads these files during play, keeping the in-game experience snappy and deterministic while still delivering AI-generated, world-aware NPC speech.
 
----
-
-### **AI Models**
-
-**Local LLMs**
-
-* **Phi-3.5-mini** (fastest)
-* **Gemma-2-2B** (higher-quality generation)
-
-These models hit the performance sweet spot:
-
-* Fit on consumer hardware
-* Generate quickly enough for real-time gameplay
-* Don’t require cloud APIs
-* Are fine-tunable if needed later
+This approach is both the project's primary technical novelty and its main area of academic evaluation.
 
 ---
 
-### **Inference Backend**
+## Desirable Outcomes
 
-**Rust** (core model runtime)
+### Academic Goals
+- Demonstrate a working, well-documented proof-of-concept for pre-rendered LLM dialogue in a game context.
+- Show technical depth through the design and implementation of the Python LLM pipeline, game state schema, and Godot integration.
+- Deliver a live offline demo that runs reliably end-to-end without an internet connection.
+- Produce thorough written documentation covering system architecture, design decisions, and results.
 
-Rust handles:
+### Technical Goals
+- NPCs issue dynamic bounties based on the current monster population in the field.
+- NPCs maintain **memory of past days** — they acknowledge previously defeated monsters and adapt their dialogue accordingly.
+- Each NPC has a **consistent, stable personality** across all generated dialogue, enforced via per-NPC system prompts.
+- The LLM pipeline runs fully offline using a locally hosted model via **Ollama**, requiring no API keys or internet access.
+- The Godot game engine and Python pipeline remain **loosely coupled** through a clean JSON file-based handoff, allowing each system to be developed and tested independently.
+- All inference runs on consumer GPU hardware within an 8GB VRAM budget.
 
-* Running the model using a wrapper around **llama.cpp**
-* Memory management and quantized model loading
-* Streaming token generation
-* Request throttling
-* Prompt formatting
-* Maintaining short-term conversational state
-* Providing a clean HTTP or WebSocket API for Unity to consume
+### Scope Constraints (by design)
+- 2 to 3 NPCs
+- 3 to 5 monster types
+- Single playable area (a town and an adjacent monster field)
 
-Why Rust?
-
-* Extremely fast
-* Complete control over memory
-* Safe concurrent token streaming
-* Ideal for embedding or extending inference logic
-* Better long-term maintainability than scripting languages
-* Works cleanly across Windows, Linux, macOS, and future console ports
-
----
-
-### **Model Runtime**
-
-The backend uses:
-
-* **llama.cpp** compiled with Rust bindings (e.g., `llama-rs` or `llm` crate)
-* Local quantized `.gguf` models
-* Dynamic temperature/top-k/top-p settings
-* Optional cache-based world memory
-
-This gives you full control over the LLM pipeline.
+Keeping scope small is a deliberate choice, not a compromise. The LLM pipeline is the academic contribution; game complexity is minimized to protect development time and demo reliability.
 
 ---
 
-### **Unity Integration Layer**
+## Architecture and Technical Stack
 
-Unity communicates with the Rust server using:
-
-* **C# HttpClient** or WebSockets for streaming dialogue
-* A request/response protocol using structured JSON
-* A dialogue controller that assembles:
-
-  * NPC persona
-  * Player query
-  * World context
-  * Current quest phase
-  * Safety constraints (e.g., “Never break character”)
-
-Unity handles the presentation and game-state changes; Rust handles the thinking.
-
----
-
-## **System Architecture**
+### System Diagram
 
 ```
-        ┌────────────────────┐
-        │       Unity        │
-        │  (Game Engine)     │
-        │                    │
-        │ - NPC Controllers  │
-Player →│ - Event Triggers   │→ Prompt JSON
-Input   │ - Dialogue UI      │
-        └─────────┬──────────┘
-                  │ HTTP/WebSocket
-                  ▼
-        ┌────────────────────┐
-        │     Rust Backend   │
-        │   (LLM Runtime)    │
-        │                    │
-        │ - llama.cpp via    │
-        │   Rust bindings    │
-        │ - Loads Phi/Gemma  │
-        │ - Streams tokens   │→ Response JSON
-        │ - Caches context   │
-        └─────────┬──────────┘
-                  │
-                  ▼
-        ┌────────────────────┐
-        │   Unity Dialogue    │
-        │   (NPC Replies)     │
-        └────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│                  START OF EACH IN-GAME DAY           │
+│                                                      │
+│   Godot 4 (GDScript)                                 │
+│   └── Writes game_state.json                         │
+│         (monsters killed, bounties, day count, etc.) │
+└───────────────────────┬─────────────────────────────┘
+                        │ file read
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│   Python LLM Pipeline                                │
+│   └── Reads game_state.json                          │
+│   └── Builds per-NPC prompts (with system prompt)    │
+│   └── Sends request to Ollama (local HTTP API)       │
+│   └── Parses response                                │
+│   └── Writes dialogue_<npc_name>.json                │
+└───────────────────────┬─────────────────────────────┘
+                        │ file write
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│   Godot 4 (GDScript)                                 │
+│   └── Reads dialogue_<npc_name>.json at game start   │
+│   └── Serves pre-rendered lines during play          │
+│   └── Displays bounty board content from JSON        │
+└─────────────────────────────────────────────────────┘
 ```
 
----
+### Tools and Technologies
 
-## **Key Features**
+| Layer | Tool / Technology |
+|---|---|
+| Game Engine | Godot 4 (GDScript) |
+| LLM Serving | Ollama (installed via official install script) |
+| Active Model | Qwen3 8B (`qwen3:8b`) |
+| LLM Pipeline | Python 3 scripts |
+| Data Interchange | JSON files (`game_state.json`, `dialogue_<npc>.json`) |
+| Operating System | Nobara Linux 43, KDE Plasma, Wayland |
+| GPU Acceleration | NVIDIA RTX 4060 (8GB VRAM) |
 
-* Completely local LLM inference (offline, free, private)
-* High-speed Rust backend for deterministic resource control
-* Real-time NPC conversations
-* Personality-locked, lore-safe prompt templates
-* Unity integration for event-driven dialog
-* Scalable architecture capable of supporting many NPCs
-* Swap-in model support for experimentation (e.g., Mistral, Llama 3.x, etc.)
+**Model configuration note:** Qwen3's extended thinking mode is disabled for this use case via `"think": false` in the Ollama API request body. This avoids unnecessary overhead in NPC dialogue generation and keeps pipeline latency low.
 
----
+**Ollama installation note:** On Nobara Linux, Ollama must be installed via the official install script (`curl -fsSL https://ollama.com/install.sh | sh`). The Nobara RPM repository contains a broken package (`ollama version 0.0.0`) that silently falls back to CPU inference.
 
-## **Why Rust Instead of Ollama or Python?**
+### Hardware Targets
 
-Rust gives you:
+| Machine | CPU | RAM | GPU | Notes |
+|---|---|---|---|---|
+| Desktop | AMD Ryzen 5 2600 (12 threads) | 32GB | NVIDIA RTX 4060 8GB (discrete) | Primary dev machine |
+| Laptop | (Acer Nitro) | -- | NVIDIA RTX 4060 Laptop 8GB (Optimus) | Secondary; requires GPU targeting verification via `nvidia-smi` |
 
-* Direct control over GPUs, memory, and parallelism
-* Faster response time than Python in token generation
-* Compiled binaries suitable for shipping with indie games
-* Lightweight dependencies (no big runtime environments)
-* Stability across platforms
-* Ability to embed the inference engine into Unity later if desired
-
-Ollama is easy to use, but Rust is purpose-built for performance and distribution.
-
-Python is flexible, but introduces latency and deployment bloat.
-
-Rust hits the goldilocks zone for your use case.
+Both machines run Nobara Linux 43 with Ollama configured for GPU acceleration. The Ollama service is managed via systemd and exposes the model at `http://localhost:11434`. `OLLAMA_ORIGINS=*` is set via a systemd override to allow local tooling (e.g., test UIs) to connect.
 
 ---
 
-## **Future Enhancements**
+## Phase-by-Phase Roadmap
 
-* NPC relationship systems tied to AI dialogue
-* Persona fine-tuning using LoRA adapters
-* In-game memory embeddings
-* Procedural dynamic quests
-* Emotion-driven token weighting
-* Model pruning for even faster real-time inference
-* Local TTS/STT for fully voiced conversations
+### Phase 1 -- Environment Setup ✅
+- [x] Install and configure Ollama on desktop and laptop via official install script
+- [x] Confirm GPU-accelerated inference (`ollama ps`, `nvidia-smi`)
+- [x] Pull and validate Qwen3 8B (`qwen3:8b`, ~5.45GB VRAM)
+- [x] Enable Ollama systemd service on desktop
+- [x] Resolve model storage location on desktop
+- [x] Build standalone local chatbot (`mistral-chat.html`) to test Ollama streaming API, persona switching, and tokens/sec stats
+- [x] Confirm `OLLAMA_ORIGINS=*` systemd override is in place on both machines
+
+### Phase 2 -- Godot 4 Foundations
+- [ ] Install Godot 4 and configure project structure
+- [ ] Build player movement and basic scene (town + field)
+- [ ] Implement NPC placement and basic interaction triggers
+- [ ] Implement monster spawning (3 to 5 types) in the field
+- [ ] Build basic combat system (player attacks, monster defeat)
+- [ ] Implement day/night cycle and day counter
+
+### Phase 3 -- Game State Architecture
+- [ ] Define `game_state.json` schema (day number, monsters defeated per day, active bounties, NPC memory fields)
+- [ ] Write GDScript logic to serialize and write `game_state.json` at the start of each new day
+- [ ] Write GDScript logic to read `dialogue_<npc_name>.json` at scene load and store lines in memory
+- [ ] Validate JSON round-trip between Godot and the filesystem independently of the LLM pipeline
+
+### Phase 4 -- LLM Pipeline Validation (Academic Core)
+- [ ] Write Python script to read `game_state.json` and construct per-NPC prompts
+- [ ] Implement per-NPC system prompts to enforce consistent personality across days
+- [ ] Send requests to Ollama `/api/chat` endpoint with `"think": false`
+- [ ] Parse and validate LLM response structure
+- [ ] Write output to `dialogue_<npc_name>.json` with a defined schema
+- [ ] Test pipeline in isolation with mocked game state inputs
+- [ ] Benchmark pipeline latency (target: completes before player interaction is possible)
+
+### Phase 5 -- Combat and Monsters
+- [ ] Polish combat feel (hit detection, feedback, enemy AI)
+- [ ] Implement per-monster-type defeat tracking in game state
+- [ ] Ensure monster population state correctly feeds into `game_state.json` for the LLM pipeline
+
+### Phase 6 -- Dialogue Delivery and Bounty Board UI
+- [ ] Build NPC dialogue UI (speech bubble or dialogue box) that reads from pre-rendered JSON
+- [ ] Build bounty board UI that displays active bounties parsed from `dialogue_<npc_name>.json`
+- [ ] Implement day-start trigger to run Python pipeline before player control is restored
+- [ ] Verify NPC memory continuity across multiple in-game days (end-to-end test)
+
+### Phase 7 -- Polish and Demo Prep
+- [ ] Conduct full offline end-to-end run (no internet, no API keys)
+- [ ] Stress test pipeline with edge cases (no monsters killed, all bounties fulfilled, repeated days)
+- [ ] Write and finalize project documentation
+- [ ] Prepare and rehearse live demo
+- [ ] Final review of scope, stability, and academic deliverables
 
 ---
 
-## **Summary**
-
-This project combines Unity, Rust, and small-but-mighty LLMs to create a foundational system for AI-powered NPC dialogue. Everything runs locally, without cloud dependencies, giving you maximum control over performance, cost, and creativity.
-
-If you want, I can also generate:
-• A shorter README for GitHub landing pages
-• A deep technical README for developers
-• Setup instructions for the Rust backend
-• Example Unity → Rust prompt JSON schema
-• A Mermaid diagram for internal documentation
-
-Just tell me what direction you want to expand next.
+*This project is evaluated on technical depth, written documentation, and a live offline demo.*
