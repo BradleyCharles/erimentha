@@ -10,10 +10,7 @@ signal fly_caught
 @onready var _body_shape: CollisionShape2D = $CollisionShape2D
 @onready var _sword: Area2D = $SwordHitbox
 
-# World bounds — replaced old screen_size clamp.
-# Call set_world_bounds() from the scene script after instantiating.
-var _world_bounds: Rect2 = Rect2(Vector2.ZERO, Vector2(1920.0, 1080.0))
-
+var screen_size: Vector2
 var facing: Vector2 = Vector2.RIGHT
 var is_attacking: bool = false
 var is_dying: bool = false
@@ -28,19 +25,12 @@ const FRAME_SIZE = 64
 
 
 func _ready():
-	add_to_group("player")
+	screen_size = get_viewport_rect().size
 	_build_sprite_frames()
 	_sprite.frame_changed.connect(_on_frame_changed)
 	_sprite.animation_finished.connect(_on_animation_finished)
 	_sword.body_entered.connect(_on_sword_hit)
 	hide()
-
-
-# ── World bounds ─────────────────────────────────────────────────────────────
-
-## Called by the scene script (field.gd / town.gd) to set the playable area.
-func set_world_bounds(bounds: Rect2) -> void:
-	_world_bounds = bounds
 
 
 # ── Sprite sheet setup ──────────────────────────────────────────────────────
@@ -117,8 +107,7 @@ func _process(delta: float) -> void:
 		_start_attack()
 
 	position += velocity * delta
-	# Clamp to world bounds rather than screen size
-	position = position.clamp(_world_bounds.position, _world_bounds.end)
+	position = position.clamp(Vector2.ZERO, screen_size)
 
 	if not is_attacking:
 		_update_animation(velocity)

@@ -11,9 +11,13 @@ config_version=5
 [application]
 
 config/name="2dTutorial"
-run/main_scene="uid://bebptnadgdno3"
+run/main_scene="uid://xmrumuvw05qe"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+SceneManager="*uid://dle5heb308jt2"
 
 [display]
 

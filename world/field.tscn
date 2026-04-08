@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://xmrumuvw05qe"]
+
+[ext_resource type="Script" uid="uid://c2jki2638x1h4" path="res://world/field.gd" id="1_d8wuf"]
+[ext_resource type="PackedScene" uid="uid://bslime1scene1" path="res://mob/slime1.tscn" id="2_r2512"]
+
+[node name="Field" type="Node" unique_id=1749953835]
+script = ExtResource("1_d8wuf")
+slime1_scene = ExtResource("2_r2512")

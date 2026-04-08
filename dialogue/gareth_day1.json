@@ -1,0 +1,64 @@
+{
+  "npc_id": "gareth",
+  "npc_name": "Gareth",
+  "day": 1,
+  "notes": "Gareth is Thornwall's blacksmith. Gruff, direct, proud of his craft. Knows monster weaknesses from years of forging hunting gear.",
+
+  "nodes": {
+
+    "greeting": {
+      "text": "Aye. What do you need, hunter? Make it quick — I'm in the middle of a temper.",
+      "responses": [
+        { "key": 1, "text": "What can you tell me about the monsters out there?", "next": "monster_info" },
+        { "key": 2, "text": "How's business?",                                    "next": "business"    },
+        { "key": 3, "text": "Never mind, I'll leave you to it.",                  "next": "farewell"    }
+      ]
+    },
+
+    "monster_info": {
+      "text": "Slimes mostly, this time of year. Soft bodies, but they'll swarm you if you're not paying attention. The green ones are fast — go for the core.",
+      "responses": [
+        { "key": 1, "text": "Are there stronger ones deeper in the field?", "next": "stronger_monsters" },
+        { "key": 2, "text": "Good to know. Thanks.",                        "next": "farewell"          }
+      ]
+    },
+
+    "stronger_monsters": {
+      "text": "Aye, and they're getting bolder. Whatever's stirring out east is pushing the smaller ones toward the edges. Watch yourself if you go deep.",
+      "responses": [
+        { "key": 1, "text": "I'll be careful.",  "next": "farewell" },
+        { "key": 2, "text": "How do I prepare?", "next": "prepare"  }
+      ]
+    },
+
+    "prepare": {
+      "text": "Keep your blade sharp — obvious, I know. And don't get surrounded. One on one you'll be fine. Three at once and even a good hunter gets sloppy.",
+      "responses": [
+        { "key": 1, "text": "Sound advice.", "next": "farewell" }
+      ]
+    },
+
+    "business": {
+      "text": "Can't complain. The guild keeps me busy patching up hunters who didn't listen to my advice. Speaking of which — bring me materials from the field and I can make it worth your while. Later.",
+      "responses": [
+        { "key": 1, "text": "I'll keep an eye out.",     "next": "farewell" },
+        { "key": 2, "text": "What kind of materials?",   "next": "materials" }
+      ]
+    },
+
+    "materials": {
+      "text": "Slime cores, mostly. Maybe something harder if you can find it. Come back with a haul and we'll talk properly.",
+      "responses": [
+        { "key": 1, "text": "Understood.", "next": "farewell" }
+      ]
+    },
+
+    "farewell": {
+      "text": "Right. Back to work.",
+      "responses": [
+        { "key": 1, "text": "Take care.", "next": null }
+      ]
+    }
+
+  }
+}
