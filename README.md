@@ -111,8 +111,8 @@ Keeping scope small is a deliberate choice, not a compromise. The LLM pipeline i
 - [x] Confirm cross-origin access is configured to allow local tooling to connect to Ollama
 
 ### Phase 2 -- Godot 4 Foundations
-- [ ] Install Godot 4 and configure project structure
-- [ ] Build player movement and basic scene (town + field)
+- [x] Install Godot 4 and configure project structure
+- [x] Build player movement and basic scene (town + field)
 - [ ] Implement NPC placement and basic interaction triggers
 - [ ] Implement monster spawning (3 to 5 types) in the field
 - [ ] Build basic combat system (player attacks, monster defeat)
