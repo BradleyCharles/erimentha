@@ -89,13 +89,11 @@ Keeping scope small is a deliberate choice, not a compromise. The LLM pipeline i
 |---|---|
 | Game Engine | Godot 4 (GDScript) |
 | LLM Serving | Ollama |
-| Active Model | Qwen3 8B (`qwen3:8b`) |
+| Active Model | Gemma 4 E4B (`gemma4:4b`) |
 | LLM Pipeline | Python 3 scripts |
 | Data Interchange | JSON files (`game_state.json`, `dialogue_<npc>.json`) |
 
-**Model configuration note:** Qwen3's extended thinking mode is disabled for this use case via `"think": false` in the Ollama API request body. This avoids unnecessary overhead in NPC dialogue generation and keeps pipeline latency low.
-
-**System requirements:** Ollama requires a CUDA-capable GPU with sufficient VRAM to load the model (~6GB recommended for Qwen3 8B). The Ollama service exposes the model at `http://localhost:11434` and must be running before the pipeline is executed.
+**System requirements:** Ollama requires a CUDA-capable GPU with sufficient VRAM to load the model. The Ollama service exposes the model at `http://localhost:11434` and must be running before the pipeline is executed.
 
 ---
 
@@ -104,19 +102,20 @@ Keeping scope small is a deliberate choice, not a compromise. The LLM pipeline i
 ### Phase 1 -- Environment Setup ✅
 - [x] Install and configure Ollama via official install script
 - [x] Confirm GPU-accelerated inference is active
-- [x] Pull and validate Qwen3 8B (`qwen3:8b`)
+- [x] Pull and validate active model (currently Gemma 4 E4B)
 - [x] Enable Ollama as a background service
 - [x] Confirm model storage location and resolve any redundant downloads
 - [x] Build standalone local test UI to validate Ollama streaming API, persona switching, and tokens/sec throughput
 - [x] Confirm cross-origin access is configured to allow local tooling to connect to Ollama
 
-### Phase 2 -- Godot 4 Foundations
+### Phase 2 -- Godot 4 Foundations ✅
 - [x] Install Godot 4 and configure project structure
 - [x] Build player movement and basic scene (town + field)
-- [ ] Implement NPC placement and basic interaction triggers
-- [ ] Implement monster spawning (3 to 5 types) in the field
-- [ ] Build basic combat system (player attacks, monster defeat)
-- [ ] Implement day/night cycle and day counter
+- [x] Implement NPC placement and basic interaction triggers (proximity detection via Area2D, per-NPC dialogue JSON loading, name labels)
+- [x] Implement monster spawning in the field (slime1 type, capped pool with respawn on kill)
+- [x] Build basic combat system (directional attack animations, sword hitbox active on specific frames, kill signal pipeline to SceneManager)
+- [x] Implement day counter and scene-to-scene transitions via SceneManager autoload
+- [x] Build dialogue box UI with typewriter effect, branching response selection, and built-in scene-transition actions (ahead of Phase 6 schedule)
 
 ### Phase 3 -- Game State Architecture
 - [ ] Define `game_state.json` schema (day number, monsters defeated per day, active bounties, NPC memory fields)
@@ -127,7 +126,7 @@ Keeping scope small is a deliberate choice, not a compromise. The LLM pipeline i
 ### Phase 4 -- LLM Pipeline Validation (Academic Core)
 - [ ] Write Python script to read `game_state.json` and construct per-NPC prompts
 - [ ] Implement per-NPC system prompts to enforce consistent personality across days
-- [ ] Send requests to Ollama `/api/chat` endpoint with `"think": false`
+- [ ] Send requests to Ollama `/api/chat` endpoint
 - [ ] Parse and validate LLM response structure
 - [ ] Write output to `dialogue_<npc_name>.json` with a defined schema
 - [ ] Test pipeline in isolation with mocked game state inputs
