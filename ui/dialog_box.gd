@@ -27,9 +27,9 @@ extends CanvasLayer
 signal closed
 
 @onready var _panel      : PanelContainer = $Panel
-@onready var _name_label : Label          = $Panel/VBox/NameLabel
-@onready var _text_label : RichTextLabel  = $Panel/VBox/TextLabel
-@onready var _responses  : VBoxContainer  = $Panel/VBox/Responses
+@onready var _name_label : Label          = $Panel/MarginContainer/VBox/NameLabel
+@onready var _text_label : RichTextLabel  = $Panel/MarginContainer/VBox/TextLabel
+@onready var _responses  : VBoxContainer  = $Panel/MarginContainer/VBox/Responses
 @onready var _timer      : Timer          = $TypingTimer
 
 const TYPING_SPEED := 0.028   # seconds per character
