@@ -2,7 +2,89 @@
 
 [ext_resource type="Script" uid="uid://c2jki2638x1h4" path="res://world/field.gd" id="1_d8wuf"]
 [ext_resource type="PackedScene" uid="uid://bslime1scene1" path="res://mob/slime1.tscn" id="2_r2512"]
+[ext_resource type="FontFile" uid="uid://ddwgglepq5c3y" path="res://fonts/almendra.regular.ttf" id="3_1x2kq"]
+[ext_resource type="PackedScene" uid="uid://bdsx8578jxv78" path="res://Player/player.tscn" id="4_mdjat"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_enpdi"]
+size = Vector2(60, 200)
 
 [node name="Field" type="Node" unique_id=1749953835]
 script = ExtResource("1_d8wuf")
 slime1_scene = ExtResource("2_r2512")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1468043752]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.46135613, 0.60124344, 0.38109186, 1)
+
+[node name="TerrainNW" type="ColorRect" parent="." unique_id=2059210385]
+offset_right = 900.0
+offset_bottom = 700.0
+color = Color(0.33333334, 0.41960785, 0.18431373, 1)
+
+[node name="TerrainNE" type="ColorRect" parent="." unique_id=1117204345]
+offset_left = 2940.0
+offset_right = 3840.0
+offset_bottom = 550.0
+color = Color(0.33333334, 0.41960785, 0.18431373, 1)
+
+[node name="TerrainSE" type="ColorRect" parent="." unique_id=1000965301]
+custom_minimum_size = Vector2(900, 400)
+offset_left = 2940.0
+offset_top = 1760.0
+offset_right = 3840.0
+offset_bottom = 2160.0
+color = Color(0.33333334, 0.41960785, 0.18431373, 1)
+
+[node name="TownEntrance" type="Area2D" parent="." unique_id=664357635]
+position = Vector2(100, 1500)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TownEntrance" unique_id=1910040562]
+shape = SubResource("RectangleShape2D_enpdi")
+
+[node name="EntryMarker" type="ColorRect" parent="TownEntrance" unique_id=1213970629]
+offset_left = -30.0
+offset_top = -100.0
+offset_right = 30.0
+offset_bottom = 100.0
+color = Color(1, 0.9309246, 0.3491902, 0.85)
+
+[node name="EntryLabel" type="Label" parent="TownEntrance/EntryMarker" unique_id=1478950866]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 151.0
+offset_right = 115.0
+offset_bottom = 183.0
+rotation = -1.5707964
+theme_override_colors/font_color = Color(0.2511899, 0.16945744, 0, 1)
+theme_override_fonts/font = ExtResource("3_1x2kq")
+theme_override_font_sizes/font_size = 24
+text = "Thornwall"
+
+[node name="MobContainer" type="Node2D" parent="." unique_id=1395761389]
+
+[node name="Player" parent="." unique_id=1012316895 instance=ExtResource("4_mdjat")]
+
+[node name="Camera2D" type="Camera2D" parent="Player" unique_id=483751371]
+limit_enabled = false
+position_smoothing_enabled = true
+position_smoothing_speed = 6.0
+
+[node name="DayLabel" type="Label" parent="." unique_id=1464102947]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -1900.0
+offset_top = 16.0
+offset_right = -1860.0
+offset_bottom = 39.0
+grow_horizontal = 0
+theme_override_fonts/font = ExtResource("3_1x2kq")
+theme_override_font_sizes/font_size = 32
+
+[connection signal="area_entered" from="TownEntrance" to="." method="_on_entrance_entered"]

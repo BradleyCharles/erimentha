@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://csrqtm1lt4yfj"]
+
+[ext_resource type="Script" uid="uid://c6wfy4nijjl7g" path="res://npc/npc_base.gd" id="1_2xp5l"]
+[ext_resource type="FontFile" uid="uid://ddwgglepq5c3y" path="res://fonts/almendra.regular.ttf" id="2_nhy3c"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_2xp5l"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_2xp5l"]
+
+[node name="NPC" type="Node2D" unique_id=885997462 groups=["npc"]]
+script = ExtResource("1_2xp5l")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1213829309]
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_2xp5l")
+
+[node name="DetectionArea" type="Area2D" parent="." unique_id=60119272]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea" unique_id=173286383]
+shape = SubResource("CircleShape2D_2xp5l")
+
+[node name="NameLabel" type="Label" parent="." unique_id=1711130897]
+visible = false
+offset_top = -60.0
+offset_right = 40.0
+offset_bottom = -37.0
+theme_override_fonts/font = ExtResource("2_nhy3c")
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1

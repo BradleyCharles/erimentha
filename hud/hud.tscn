@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://biyooker3s5si" path="res://hud/hud.gd" id="1_2gk58"]
 [ext_resource type="FontFile" uid="uid://dv22pb16gm4gv" path="res://fonts/Xolonium-Regular.ttf" id="2_318vg"]
+[ext_resource type="FontFile" uid="uid://ddwgglepq5c3y" path="res://fonts/almendra.regular.ttf" id="2_w8tcp"]
 
 [sub_resource type="InputEventAction" id="InputEventAction_2gk58"]
 action = &"start_game"
@@ -20,7 +21,7 @@ offset_left = -22.5
 offset_right = 22.5
 offset_bottom = 78.0
 grow_horizontal = 2
-theme_override_fonts/font = ExtResource("2_318vg")
+theme_override_fonts/font = ExtResource("2_w8tcp")
 theme_override_font_sizes/font_size = 64
 text = "0"
 horizontal_alignment = 1

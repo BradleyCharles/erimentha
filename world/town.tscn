@@ -1,0 +1,116 @@
+[gd_scene format=3 uid="uid://uj7erjhokfoc"]
+
+[ext_resource type="Script" uid="uid://buyhuqshdn1pn" path="res://world/town.gd" id="1_icu5e"]
+[ext_resource type="PackedScene" uid="uid://csrqtm1lt4yfj" path="res://npc/npc.tscn" id="2_7cdph"]
+[ext_resource type="FontFile" uid="uid://ddwgglepq5c3y" path="res://fonts/almendra.regular.ttf" id="3_4u7cj"]
+[ext_resource type="PackedScene" uid="uid://bdsx8578jxv78" path="res://Player/player.tscn" id="4_js14o"]
+[ext_resource type="PackedScene" uid="uid://b6kyjdax715ba" path="res://ui/dialog_box.tscn" id="5_kmbyx"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mfqvo"]
+size = Vector2(60, 200)
+
+[node name="Town" type="Node" unique_id=1126621347]
+script = ExtResource("1_icu5e")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1039835578]
+offset_right = 4800.0
+offset_bottom = 2700.0
+color = Color(0.7014107, 0.64995646, 0.5657284, 1)
+
+[node name="InnBuilding" type="ColorRect" parent="Background" unique_id=1438118174]
+layout_mode = 0
+offset_left = 2260.0
+offset_top = 440.0
+offset_right = 2540.0
+offset_bottom = 640.0
+color = Color(0.5370987, 0.6262097, 0.76737565, 1)
+
+[node name="GuildBuilding" type="ColorRect" parent="Background" unique_id=428169173]
+layout_mode = 0
+offset_left = 690.0
+offset_top = 1240.0
+offset_right = 1380.0
+offset_bottom = 1440.0
+color = Color(0.7014107, 0.46135613, 0.46135613, 1)
+
+[node name="SmithBuilding" type="ColorRect" parent="Background" unique_id=639699953]
+layout_mode = 0
+offset_left = 2290.0
+offset_top = 1230.0
+offset_right = 2550.0
+offset_bottom = 1430.0
+color = Color(0.5657284, 0.5657284, 0.5657284, 1)
+
+[node name="InnKeeper" parent="." unique_id=885997462 instance=ExtResource("2_7cdph")]
+position = Vector2(2400, 700)
+npc_id = "Mira"
+dialogue_file = "res://dialogue/innkeeper_day1.json"
+
+[node name="BountyGiver" parent="." unique_id=287870813 instance=ExtResource("2_7cdph")]
+position = Vector2(820, 1400)
+npc_name = "Commander Aldric"
+dialogue_file = "res://dialogue/bounty_giver_day1.json"
+
+[node name="Gareth" parent="." unique_id=2069544344 instance=ExtResource("2_7cdph")]
+position = Vector2(2400, 1460)
+npc_name = "Gareth"
+dialogue_file = "res://dialogue/gareth_day1.json"
+
+[node name="Wanderer1" parent="." unique_id=1732173090 instance=ExtResource("2_7cdph")]
+position = Vector2(1800, 1200)
+is_wanderer = true
+
+[node name="Wanderer2" parent="." unique_id=718400555 instance=ExtResource("2_7cdph")]
+position = Vector2(2900, 1500)
+is_wanderer = true
+
+[node name="Wanderer3" parent="." unique_id=419390655 instance=ExtResource("2_7cdph")]
+position = Vector2(2200, 900)
+is_wanderer = true
+
+[node name="FieldExit" type="Area2D" parent="." unique_id=1423619546]
+position = Vector2(4580, 1350)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FieldExit" unique_id=593957650]
+shape = SubResource("RectangleShape2D_mfqvo")
+
+[node name="ExitMarker" type="ColorRect" parent="FieldExit" unique_id=1759549220]
+offset_left = -30.0
+offset_top = -100.0
+offset_right = 30.0
+offset_bottom = 100.0
+color = Color(1, 0.9309246, 0.3491902, 0.85)
+
+[node name="ExitLabel" type="Label" parent="FieldExit" unique_id=808325399]
+offset_left = 17.0
+offset_top = -37.0
+offset_right = 97.0
+offset_bottom = -5.0
+rotation = 1.5707964
+theme_override_colors/font_color = Color(0.2509804, 0.16862746, 0, 1)
+theme_override_fonts/font = ExtResource("3_4u7cj")
+theme_override_font_sizes/font_size = 24
+text = "Ashfield"
+
+[node name="Player" parent="." unique_id=1012316895 instance=ExtResource("4_js14o")]
+
+[node name="Camera2D" type="Camera2D" parent="Player" unique_id=1835709435]
+limit_enabled = false
+position_smoothing_enabled = true
+position_smoothing_speed = 6.0
+
+[node name="DialogBox" parent="." unique_id=220697160 instance=ExtResource("5_kmbyx")]
+
+[node name="DayLabel" type="Label" parent="." unique_id=1236564372]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -1900.0
+offset_top = 16.0
+offset_right = -1860.0
+offset_bottom = 39.0
+grow_horizontal = 0
+theme_override_fonts/font = ExtResource("3_4u7cj")
+theme_override_font_sizes/font_size = 32
+
+[connection signal="area_entered" from="FieldExit" to="." method="_on_field_exit_entered"]

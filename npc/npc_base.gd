@@ -56,6 +56,8 @@ const WANDER_SPEED : float  = 38.0
 # ── Lifecycle ─────────────────────────────────────────────────────────────────
 
 func _ready() -> void:
+	
+	_build_sprite_frames()
 	# Wire detection signals
 	_detection.area_entered.connect(_on_area_entered)
 	_detection.area_exited.connect(_on_area_exited)
@@ -176,3 +178,34 @@ func _pick_wander_direction() -> void:
 func _try_play(anim: String) -> void:
 	if _sprite.sprite_frames and _sprite.sprite_frames.has_animation(anim):
 		_sprite.play(anim)
+		
+# ── Sprite setup ──────────────────────────────────────────────────────────────
+
+const FRAME_SIZE := 64
+const ROW_DOWN   := 0
+const ROW_RIGHT  := 2
+
+func _build_sprite_frames() -> void:
+	var base     := "res://assets/Swordsman_lvl1/Without_shadow/"
+	var idle_tex : Texture2D = load(base + "Swordsman_lvl1_Idle_without_shadow.png")
+
+	var sf := SpriteFrames.new()
+	sf.remove_animation("default")
+
+	_add_anim(sf, "idle_down",  idle_tex, ROW_DOWN,  12, 8.0, true)
+	_add_anim(sf, "idle_right", idle_tex, ROW_RIGHT, 12, 8.0, true)
+	# idle_left reuses idle_right with flip_h = true (handled in _try_play)
+
+	_sprite.sprite_frames = sf
+
+
+func _add_anim(sf: SpriteFrames, anim: String, sheet: Texture2D,
+			   row: int, count: int, fps: float, loop: bool) -> void:
+	sf.add_animation(anim)
+	sf.set_animation_loop(anim, loop)
+	sf.set_animation_speed(anim, fps)
+	for i in count:
+		var a := AtlasTexture.new()
+		a.atlas  = sheet
+		a.region = Rect2(i * FRAME_SIZE, row * FRAME_SIZE, FRAME_SIZE, FRAME_SIZE)
+		sf.add_frame(anim, a)		

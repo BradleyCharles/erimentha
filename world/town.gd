@@ -10,7 +10,7 @@ extends Node
 ##     Dragon Roost Inn       — center ~(2400, 580)   direction: North
 ##     Monster Hunters Guild  — center ~(820, 1350)   direction: West
 ##     Gareth the Blacksmith  — center ~(2400, 1350)  direction: Center
-##     Field Exit marker      — center ~(2400, 2620)  direction: South
+##     Field Exit marker      — center ~(,)  direction: East
 ##
 ## Scene structure (build in editor):
 ##   Town  (Node, script = town.gd)
