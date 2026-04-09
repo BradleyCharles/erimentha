@@ -42,7 +42,8 @@ offset_bottom = 2160.0
 color = Color(0.33333334, 0.41960785, 0.18431373, 1)
 
 [node name="TownEntrance" type="Area2D" parent="." unique_id=664357635]
-position = Vector2(100, 1500)
+position = Vector2(97, 1500)
+collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="TownEntrance" unique_id=1910040562]
 shape = SubResource("RectangleShape2D_enpdi")
