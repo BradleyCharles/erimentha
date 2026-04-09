@@ -152,7 +152,8 @@ func _update_animation(velocity: Vector2) -> void:
 
 func _start_attack() -> void:
 	is_attacking = true
-	_sword.position = facing.normalized() * 65.0
+	_sword.position = facing.normalized() * 25.0
+	_sword.scale.x = -1.0 if _sprite.flip_h else 1.0
 
 	var anim: String
 	if abs(facing.y) > abs(facing.x):

@@ -1,28 +1,21 @@
 [gd_scene format=3 uid="uid://bslime1scene1"]
 
-[ext_resource type="Script" path="res://mob/slime1.gd" id="1_slime1"]
+[ext_resource type="Script" uid="uid://b5crpnf8krkkv" path="res://mob/slime1.gd" id="1_slime1"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_default"]
-animations = [{
-"frames": [],
-"loop": true,
-"name": &"default",
-"speed": 5.0
-}]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_slime1"]
-radius = 30.0
+radius = 26.0
 
-[node name="Slime1" type="RigidBody2D" groups=["mobs"]]
+[node name="Slime1" type="RigidBody2D" unique_id=373678051 groups=["mobs"]]
 gravity_scale = 0.0
 script = ExtResource("1_slime1")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-scale = Vector2(3.0, 3.0)
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1595696230]
+scale = Vector2(3, 3)
 sprite_frames = SubResource("SpriteFrames_default")
-animation = &"default"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2103164943]
 shape = SubResource("CircleShape2D_slime1")
 
-[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="."]
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="." unique_id=1796887682]
