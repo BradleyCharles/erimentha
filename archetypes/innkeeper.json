@@ -1,0 +1,23 @@
+{
+  "role": "innkeeper",
+  "fixed_properties": {
+    "occupation": "innkeeper",
+    "location_in_town": "inn",
+    "knows_local_gossip": true,
+    "provides_lodging": true
+  },
+  "generation_constraints": {
+    "must_include": [
+      "Has run or worked at the inn for many years",
+      "Has a strong sense of the town's social dynamics and gossip",
+      "Has a personal relationship with at least one other NPC type in town"
+    ],
+    "must_not_include": [
+      "Is a fighter or monster hunter",
+      "Is indifferent to the people who pass through",
+      "Is new to hospitality work"
+    ]
+  },
+  "variant_count": 3,
+  "generation_prompt": "Generate an innkeeper NPC for a fantasy RPG town. They must be experienced in hospitality, deeply embedded in local gossip and social life, and have genuine warmth or shrewdness (not indifference) toward travellers. They are not a fighter.\n\nRespond ONLY with a JSON object. No explanation, no markdown, no preamble. Use exactly these fields:\n{\n  \"name\": \"string\",\n  \"age\": integer,\n  \"personality\": \"one word\",\n  \"backstory\": \"2-3 sentences\",\n  \"personal_detail\": \"one sentence — something that could naturally surface in conversation\",\n  \"system_prompt_fragment\": \"2-3 sentences in second person that open a character system prompt for this NPC\"\n}"
+}

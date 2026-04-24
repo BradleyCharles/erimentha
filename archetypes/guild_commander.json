@@ -1,0 +1,23 @@
+{
+  "role": "guild_commander",
+  "fixed_properties": {
+    "occupation": "Monster Hunters Guild commander",
+    "location_in_town": "guild hall",
+    "issues_bounties": true,
+    "tracks_field_reports": true
+  },
+  "generation_constraints": {
+    "must_include": [
+      "Has a military or formal organizational background",
+      "Values results and competence above personality",
+      "Has direct experience with monster hunting, either personally or through years of command"
+    ],
+    "must_not_include": [
+      "Is corrupt or untrustworthy",
+      "Is dismissive of the monster threat",
+      "Is new to their command role"
+    ]
+  },
+  "variant_count": 3,
+  "generation_prompt": "Generate a Monster Hunters Guild commander NPC for a fantasy RPG town. They must have a formal or military bearing, value results and competence, and have genuine authority and experience managing hunters. They are trustworthy and take the monster threat seriously.\n\nRespond ONLY with a JSON object. No explanation, no markdown, no preamble. Use exactly these fields:\n{\n  \"name\": \"string\",\n  \"age\": integer,\n  \"personality\": \"one word\",\n  \"backstory\": \"2-3 sentences\",\n  \"personal_detail\": \"one sentence — something that could naturally surface in conversation\",\n  \"system_prompt_fragment\": \"2-3 sentences in second person that open a character system prompt for this NPC\"\n}"
+}

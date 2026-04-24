@@ -1,0 +1,23 @@
+{
+  "role": "blacksmith",
+  "fixed_properties": {
+    "occupation": "blacksmith",
+    "location_in_town": "smithy",
+    "knows_monster_weaknesses": true,
+    "sells_equipment": true
+  },
+  "generation_constraints": {
+    "must_include": [
+      "Has practiced smithing for at least a decade",
+      "Has working knowledge of monster anatomy as it relates to weapon design",
+      "Has a personal reason to care about the local monster population"
+    ],
+    "must_not_include": [
+      "Is a monster hunter or adventurer themselves",
+      "Has magical abilities",
+      "Is new to the town"
+    ]
+  },
+  "variant_count": 3,
+  "generation_prompt": "Generate a blacksmith NPC for a fantasy RPG town. They must be an experienced smith with at least a decade of practice who has practical knowledge of monster hunting gear. They are not an adventurer and have no magical abilities. They have lived in their town long enough to know its history.\n\nRespond ONLY with a JSON object. No explanation, no markdown, no preamble. Use exactly these fields:\n{\n  \"name\": \"string\",\n  \"age\": integer,\n  \"personality\": \"one word\",\n  \"backstory\": \"2-3 sentences\",\n  \"personal_detail\": \"one sentence — something that could naturally surface in conversation\",\n  \"system_prompt_fragment\": \"2-3 sentences in second person that open a character system prompt for this NPC\"\n}"
+}
