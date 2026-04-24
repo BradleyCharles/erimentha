@@ -1,74 +1,32 @@
 extends Node
 
-## Thornwall — the town scene.
-##
-## Layout (place nodes in editor):
-##
-##   World size: 4800 × 2700  (set world_size export)
-##
-##   Landmarks (approximate world positions):
-##     Dragon Roost Inn       — center ~(2400, 580)   direction: North
-##     Monster Hunters Guild  — center ~(820, 1350)   direction: West
-##     Gareth the Blacksmith  — center ~(2400, 1350)  direction: Center
-##     Field Exit marker      — center ~(,)  direction: East
-##
-## Scene structure (build in editor):
-##   Town  (Node, script = town.gd)
-##   ├── Background      (ColorRect, anchors=full, earthy brown/grey placeholder)
-##   │
-##   │   ── Building placeholders ──────────────────────────────────────────────
-##   ├── InnBuilding     (ColorRect ~280×200, muted blue, pos ~(2260,460))
-##   │   └── Label "Dragon Roost Inn"
-##   ├── GuildBuilding   (ColorRect ~260×180, dark red, pos ~(690,1260))
-##   │   └── Label "Monster Hunters Guild"
-##   ├── SmithBuilding   (ColorRect ~200×180, dark grey, pos ~(2300,1260))
-##   │   └── Label "Gareth's Smithy"
-##   │
-##   │   ── NPCs (instances of npc_base.tscn) ─────────────────────────────────
-##   ├── InnKeeper       (npc_base, npc_name="Mira", dialogue=innkeeper_day1.json)
-##   │     position ~(2400, 700)
-##   ├── BountyGiver     (npc_base, npc_name="Commander Aldric",
-##   │     dialogue=bounty_giver_day1.json, position ~(820, 1380))
-##   ├── Gareth          (npc_base, npc_name="Gareth",
-##   │     dialogue=gareth_day1.json, position ~(2400, 1420))
-##   ├── Wanderer1       (npc_base, is_wanderer=true, position ~(1800, 1200))
-##   ├── Wanderer2       (npc_base, is_wanderer=true, position ~(2900, 1500))
-##   ├── Wanderer3       (npc_base, is_wanderer=true, position ~(2200, 900))
-##   │
-##   │   ── Field exit ──────────────────────────────────────────────────────────
-##   ├── FieldExit       (Area2D)  ← area_entered → _on_field_exit_entered
-##   │   ├── CollisionShape2D  (RectangleShape2D ~200×60)
-##   │   └── ExitMarker  (ColorRect, bright gold, same size)
-##   │         Label child: "⟶ The Ashfield"
-##   │
-##   ├── Player          (instance of Player/player.tscn)
-##   │   └── Camera2D  (enabled=true)
-##   │
-##   ├── DialogueBox     (instance of ui/dialogue_box.tscn)
-##   │     Add to group "dialogue_box"
-##   │
-##   └── DayLabel        (Label, top-left anchor, font_size=32)
+## Thornwall -- the town scene.
+## Ctrl+R triggers the chronicle pipeline (developer/demo tool).
 
 
 @export var world_size: Vector2 = Vector2(4800.0, 2700.0)
 
-@onready var _player      = $Player
-@onready var _field_exit  : Area2D = $FieldExit
-@onready var _day_label   : Label  = $DayLabel
+@onready var _player     = $Player
+@onready var _field_exit : Area2D = $FieldExit
+@onready var _day_label  : Label  = $DayLabel
 
 
 func _ready() -> void:
 	_player.set_world_bounds(Rect2(Vector2.ZERO, world_size))
-	# Spawn near the south (field-side) entrance so the arrival feels natural
 	_player.start(Vector2(world_size.x * 0.5, world_size.y * 0.80))
-
 	_field_exit.area_entered.connect(_on_field_exit_entered)
-
 	_day_label.text = "Day  %d" % SceneManager.day
-
-	# Reload all NPC dialogue at scene entry so day-appropriate JSON is used.
-	# This becomes meaningful in Phase 4 once the LLM pipeline generates daily files.
 	_reload_all_dialogue()
+
+
+# ── Input ─────────────────────────────────────────────────────────────────────
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_R and event.ctrl_pressed:
+			get_viewport().set_input_as_handled()
+			print("Town: Ctrl+R pressed -- triggering chronicle pipeline.")
+			SceneManager.trigger_chronicle()
 
 
 # ── Events ────────────────────────────────────────────────────────────────────
