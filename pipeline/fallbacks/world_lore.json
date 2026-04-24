@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "generated_day": 0,
+  "world": {
+    "name": "The Erimentha Reach",
+    "lore_facts": [
+      "The Ashfield has been a hunting ground for generations, its slime population cycling with the seasons.",
+      "The Monster Hunters Guild maintains order across settlements by issuing bounties and tracking field reports.",
+      "Something unusual has been stirring in the eastern reach for the past season -- no confirmed sightings yet."
+    ]
+  },
+  "towns": {
+    "thornwall": {
+      "display_name": "Thornwall",
+      "lore_facts": [
+        "Thornwall grew up around the guild outpost as hunters needed a place to rest between field runs.",
+        "The inn has operated under the same family for three generations.",
+        "The south road slime problem is a recurring seasonal issue the guild has never fully solved."
+      ]
+    },
+    "town_2": {
+      "display_name": "Ashenvale",
+      "lore_facts": [
+        "Ashenvale sits on the eastern edge of the reach, closer to whatever is stirring in the deep field.",
+        "Its residents are more wary of outsiders than Thornwall -- the eastern reach has a harder reputation."
+      ]
+    }
+  }
+}
