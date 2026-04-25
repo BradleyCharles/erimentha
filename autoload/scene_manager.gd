@@ -291,7 +291,7 @@ func _on_pipeline_result(status: String, message: String) -> void:
 			_dismiss_overlay()
 			_reload_all_dialogue()
 			if _pipeline_mode == "eod":
-				go_to_field()
+				go_to_town()
 			# Chronicle: overlay dismissed, player stays in town.
 
 		"crashed":
@@ -332,7 +332,7 @@ func _dismiss_overlay() -> void:
 		_overlay_label = null
 
 
-func _show_crash_message(message: String) -> void:
+func _show_crash_message(_message: String) -> void:
 	if _overlay_label:
 		_overlay_label.text = (
 			"Something went wrong preparing the next day.\n"
@@ -345,7 +345,7 @@ func _show_crash_message(message: String) -> void:
 	_dismiss_overlay()
 	_reload_all_dialogue()
 	if _pipeline_mode == "eod":
-		go_to_field()
+		go_to_town()
 
 
 func _wait_for_keypress() -> void:
