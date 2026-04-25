@@ -38,11 +38,6 @@ var flags : Dictionary = {
 const FIELD_SCENE := "res://world/field.tscn"
 const TOWN_SCENE  := "res://world/town.tscn"
 
-const AREA_NAMES : Dictionary = {
-	FIELD_SCENE: "The Ashfield",
-	TOWN_SCENE:  "Thornwall",
-}
-
 
 # ── Pipeline Config ───────────────────────────────────────────────────────────
 
@@ -365,12 +360,31 @@ func _reload_all_dialogue() -> void:
 
 # ── Scene transition ──────────────────────────────────────────────────────────
 
+func _get_area_name(scene_path: String) -> String:
+	if scene_path == FIELD_SCENE:
+		return "The Ashfield"
+	if scene_path == TOWN_SCENE:
+		var path := _project_path + "world_registry.json"
+		var file := FileAccess.open(path, FileAccess.READ)
+		if file:
+			var parser := JSON.new()
+			if parser.parse(file.get_as_text()) == OK:
+				var display_name := parser.get_data()\
+					.get("towns", {})\
+					.get("thornwall", {})\
+					.get("display_name", "Thornwall") as String
+				file.close()
+				return display_name
+			file.close()
+	return ""
+
+
 func _transition_to(scene_path: String) -> void:
 	if _transitioning:
 		return
 	_transitioning = true
 
-	var area_name := AREA_NAMES.get(scene_path, "") as String
+	var area_name := _get_area_name(scene_path)
 	var ls        := _loading_packed.instantiate()
 	get_tree().root.add_child(ls)
 

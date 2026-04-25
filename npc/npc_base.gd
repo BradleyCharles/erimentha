@@ -25,6 +25,7 @@ extends Node2D
 
 # ── Exports ───────────────────────────────────────────────────────────────────
 
+@export var npc_role        : String = ""
 @export var npc_id          : String = ""
 @export var npc_name        : String = "Villager"
 ## Path to the NPC's pre-rendered dialogue JSON, e.g. "res://dialogue/innkeeper_day1.json"
@@ -32,7 +33,6 @@ extends Node2D
 @export var detection_radius: float  = 160.0
 ## True for anonymous background NPCs that wander but carry no dialogue.
 @export var is_wanderer     : bool   = false
-@export var npc_role: String = ""
 
 
 # ── Node refs ─────────────────────────────────────────────────────────────────
@@ -129,8 +129,10 @@ func reload_dialogue() -> void:
 func _on_area_entered(area: Area2D) -> void:
 	if not _is_player_area(area):
 		return
-	_player_in_range    = true
-	_name_lbl.visible   = true
+	_player_in_range  = true
+	_name_lbl.visible = true
+	if npc_id != "" and not SceneManager.get_flag("met_" + npc_id.to_lower()):
+		SceneManager.set_flag("met_" + npc_id.to_lower(), true)
 	_open_dialogue()
 
 
