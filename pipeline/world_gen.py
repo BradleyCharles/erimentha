@@ -268,6 +268,11 @@ def write_world_registry(registry: dict) -> None:
 # ── Initialise game_state.json ────────────────────────────────────────────────
 
 def initialise_game_state(player_name: str) -> None:
+    
+    if GAME_STATE_FILE.exists():
+        GAME_STATE_FILE.unlink()
+    initialise_game_state(player_name)
+
     if GAME_STATE_FILE.exists():
         try:
             existing = json.loads(GAME_STATE_FILE.read_text())
