@@ -113,8 +113,12 @@ func _load_dialogue() -> void:
 
 ## Reload dialogue at the start of each new day without re-instantiating the NPC.
 func reload_dialogue() -> void:
-	_dialogue_nodes = {}
-	_load_dialogue()
+    _dialogue_nodes = {}
+    # Try the day-specific pipeline-generated file first
+    var day_path := "res://dialogue/%s_day%d.json" % [npc_id.to_lower(), SceneManager.day]
+    if ResourceLoader.exists(day_path) or FileAccess.file_exists(day_path):
+        dialogue_file = day_path
+    _load_dialogue()
 
 
 # ── Proximity detection ───────────────────────────────────────────────────────
