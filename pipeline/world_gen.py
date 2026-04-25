@@ -268,23 +268,6 @@ def write_world_registry(registry: dict) -> None:
 # ── Initialise game_state.json ────────────────────────────────────────────────
 
 def initialise_game_state(player_name: str) -> None:
-    
-    if GAME_STATE_FILE.exists():
-        GAME_STATE_FILE.unlink()
-    initialise_game_state(player_name)
-
-    if GAME_STATE_FILE.exists():
-        try:
-            existing = json.loads(GAME_STATE_FILE.read_text())
-            if existing.get("meta", {}).get("day", 0) > 0:
-                logger.info(
-                    "game_state.json already has progress (day %d). Skipping.",
-                    existing["meta"]["day"],
-                )
-                return
-        except (json.JSONDecodeError, KeyError):
-            pass
-
     state = {
         "meta": {"schema_version": "1.0", "day": 1},
         "player_name": player_name,
@@ -375,6 +358,8 @@ def main() -> None:
     write_world_registry(registry)
 
     # 5. Initialise game_state.json
+    if GAME_STATE_FILE.exists():
+        GAME_STATE_FILE.unlink()
     initialise_game_state(player_name)
 
     # 6. Generate day 1 dialogue
