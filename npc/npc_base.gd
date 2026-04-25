@@ -32,6 +32,7 @@ extends Node2D
 @export var detection_radius: float  = 160.0
 ## True for anonymous background NPCs that wander but carry no dialogue.
 @export var is_wanderer     : bool   = false
+@export var npc_role: String = ""
 
 
 # ── Node refs ─────────────────────────────────────────────────────────────────
@@ -114,9 +115,11 @@ func _load_dialogue() -> void:
 ## Reload dialogue at the start of each new day without re-instantiating the NPC.
 func reload_dialogue() -> void:
     _dialogue_nodes = {}
-    # Try the day-specific pipeline-generated file first
-    var day_path := "res://dialogue/%s_day%d.json" % [npc_id.to_lower(), SceneManager.day]
-    if ResourceLoader.exists(day_path) or FileAccess.file_exists(day_path):
+    if npc_id == "":
+        return
+    var day_path := "res://dialogue/%s_day%d.json" \
+        % [npc_id.to_lower(), SceneManager.day]
+    if FileAccess.file_exists(day_path):
         dialogue_file = day_path
     _load_dialogue()
 
@@ -138,9 +141,9 @@ func _on_area_exited(area: Area2D) -> void:
 	_name_lbl.visible = false
 
 	# Record first meeting in SceneManager flags
-    # Only fires once -- if the flag is already true, skip it
-    if npc_id != "" and not SceneManager.get_flag("met_" + npc_id):
-        SceneManager.set_flag("met_" + npc_id, true)
+	# Only fires once -- if the flag is already true, skip it
+	if npc_id != "" and not SceneManager.get_flag("met_" + npc_id):
+		SceneManager.set_flag("met_" + npc_id, true)
 
 	_close_dialogue()
 

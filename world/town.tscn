@@ -43,18 +43,24 @@ color = Color(0.5657284, 0.5657284, 0.5657284, 1)
 
 [node name="InnKeeper" parent="." unique_id=885997462 instance=ExtResource("2_7cdph")]
 position = Vector2(2399, 700)
+npc_id = "mira"
 npc_name = "Mira"
 dialogue_file = "res://dialogue/innkeeper_day1.json"
+npc_role = "innkeeper"
 
 [node name="BountyGiver" parent="." unique_id=287870813 instance=ExtResource("2_7cdph")]
 position = Vector2(820, 1400)
+npc_id = "commander_aldric"
 npc_name = "Commander Aldric"
 dialogue_file = "res://dialogue/bounty_giver_day1.json"
+npc_role = "guild_commander"
 
-[node name="Gareth" parent="." unique_id=2069544344 instance=ExtResource("2_7cdph")]
+[node name="Blacksmith" parent="." unique_id=2069544344 instance=ExtResource("2_7cdph")]
 position = Vector2(2400, 1460)
+npc_id = "gareth"
 npc_name = "Gareth"
 dialogue_file = "res://dialogue/gareth_day1.json"
+npc_role = "blacksmith"
 
 [node name="Wanderer1" parent="." unique_id=1732173090 instance=ExtResource("2_7cdph")]
 position = Vector2(1800, 1200)

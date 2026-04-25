@@ -232,7 +232,7 @@ func _start_pipeline(mode: String) -> void:
 
 
 func _launch_pipeline(mode: String) -> void:
-	var script        := _project_path + PIPELINE_SCRIPTS[mode]
+	var script        :String= _project_path + PIPELINE_SCRIPTS[mode]
 	_pipeline_pid      = OS.create_process(PYTHON_EXE, [script])
 	_pipeline_running  = true
 	_poll_elapsed      = 0.0
