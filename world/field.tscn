@@ -87,5 +87,3 @@ offset_bottom = 39.0
 grow_horizontal = 0
 theme_override_fonts/font = ExtResource("3_1x2kq")
 theme_override_font_sizes/font_size = 32
-
-[connection signal="area_entered" from="TownEntrance" to="." method="_on_entrance_entered"]

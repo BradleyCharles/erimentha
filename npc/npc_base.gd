@@ -142,11 +142,6 @@ func _on_area_exited(area: Area2D) -> void:
 	_player_in_range  = false
 	_name_lbl.visible = false
 
-	# Record first meeting in SceneManager flags
-	# Only fires once -- if the flag is already true, skip it
-	if npc_id != "" and not SceneManager.get_flag("met_" + npc_id):
-		SceneManager.set_flag("met_" + npc_id, true)
-
 	_close_dialogue()
 
 
