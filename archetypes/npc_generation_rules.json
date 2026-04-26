@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "description": "Shared generation rules applied to all NPC archetypes regardless of role or location. These rules are injected into every variant generation prompt alongside role-specific constraints.",
+
+  "naming": {
+    "instruction": "When choosing a name, draw from a wide range of cultural influences -- consider names with Celtic, Norse, Slavic, Mediterranean, Middle Eastern, or East Asian roots, or invent something that feels original to this world. The name should feel like it belongs to a real person, not a fantasy archetype. Avoid names that sound generically medieval-English or that are extremely common in fantasy fiction."
+  },
+
+  "voice": {
+    "instruction": "The backstory and personal_detail fields must be written in third person (e.g. 'He learned...', 'She always...'). The system_prompt_fragment must be written entirely in second person addressing the character themselves (e.g. 'You are...'). Never address hunters or visitors directly in the fragment or use the word 'player'."
+  },
+
+  "quality": {
+    "instruction": "Proofread all fields carefully before responding. Each field must contain no repeated words, no grammatical errors, and no placeholder text."
+  }
+}

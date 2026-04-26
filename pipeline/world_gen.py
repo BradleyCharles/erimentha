@@ -40,6 +40,9 @@ from config import (
     TOWNS,
     VARIANTS_PER_ARCHETYPE,
     PROJECT_ROOT,
+    THORNWALL_LORE,
+    NPC_RULES_FILE,
+    NAME_USAGE_FILE,
 )
 from ollama_client import call_ollama_json
 
@@ -96,6 +99,114 @@ def get_player_name() -> str:
     return fallback
 
 
+# ── Lore file ─────────────────────────────────────────────────────────────────
+
+def load_thornwall_lore() -> str:
+    """
+    Load the Thornwall lore seed document.
+    Returns empty string if file is missing so callers degrade gracefully.
+    """
+    if not THORNWALL_LORE.exists():
+        logger.warning("Thornwall lore file not found: %s", THORNWALL_LORE)
+        return ""
+    text = THORNWALL_LORE.read_text().strip()
+    logger.info("Loaded Thornwall lore (%d words).", len(text.split()))
+    return text
+
+
+# ── Shared NPC generation rules ───────────────────────────────────────────────
+
+def load_npc_rules() -> dict:
+    if not NPC_RULES_FILE.exists():
+        logger.warning("NPC rules file not found: %s", NPC_RULES_FILE)
+        return {}
+    try:
+        return json.loads(NPC_RULES_FILE.read_text())
+    except json.JSONDecodeError as exc:
+        logger.error("Failed to parse npc_generation_rules.json: %s", exc)
+        return {}
+
+
+def load_name_usage() -> dict:
+    if not NAME_USAGE_FILE.exists():
+        return {
+            "schema_version": "1.0",
+            "retired_threshold": 5,
+            "first_name_counts": {},
+            "retired_names": [],
+        }
+    try:
+        return json.loads(NAME_USAGE_FILE.read_text())
+    except json.JSONDecodeError:
+        logger.warning("Failed to parse name_usage.json. Starting fresh.")
+        return {
+            "schema_version": "1.0",
+            "retired_threshold": 5,
+            "first_name_counts": {},
+            "retired_names": [],
+        }
+
+
+def save_name_usage(usage: dict) -> None:
+    NAME_USAGE_FILE.write_text(json.dumps(usage, indent=2))
+
+
+def record_name(full_name: str, usage: dict) -> None:
+    """
+    Extract the first name from a full NPC name, increment its count,
+    and retire it if the threshold is reached.
+    """
+    first = full_name.strip().split()[0] if full_name.strip() else ""
+    if not first:
+        return
+    counts  = usage.setdefault("first_name_counts", {})
+    retired = usage.setdefault("retired_names", [])
+    threshold = usage.get("retired_threshold", 5)
+
+    counts[first] = counts.get(first, 0) + 1
+    if counts[first] >= threshold and first not in retired:
+        retired.append(first)
+        logger.info("Name '%s' reached threshold (%d) -- retired.", first, threshold)
+
+
+def build_shared_rules_prompt(
+    rules: dict,
+    usage: dict,
+    current_world_names: set[str],
+) -> str:
+    """
+    Build the shared rules block injected into every NPC generation prompt.
+    Combines naming instruction, retired names, current world exclusions,
+    voice rules, and quality rules.
+    """
+    sections: list[str] = []
+
+    naming_instruction = rules.get("naming", {}).get("instruction", "")
+    retired            = usage.get("retired_names", [])
+
+    # Merge retired names with first names already used in this world run
+    world_first_names = {n.strip().split()[0] for n in current_world_names if n.strip()}
+    excluded           = sorted(set(retired) | world_first_names)
+
+    if naming_instruction:
+        exclusion_line = (
+            f" The following first names are overused or already taken in this world "
+            f"and must not be used: {', '.join(excluded)}."
+            if excluded else ""
+        )
+        sections.append(f"[Naming]\n{naming_instruction}{exclusion_line}")
+
+    voice = rules.get("voice", {}).get("instruction", "")
+    if voice:
+        sections.append(f"[Voice]\n{voice}")
+
+    quality = rules.get("quality", {}).get("instruction", "")
+    if quality:
+        sections.append(f"[Quality]\n{quality}")
+
+    return "\n\n".join(sections)
+
+
 # ── World lore ────────────────────────────────────────────────────────────────
 
 WORLD_LORE_SYSTEM = (
@@ -105,36 +216,49 @@ WORLD_LORE_SYSTEM = (
     "Respond ONLY with valid JSON. No preamble, no explanation, no markdown fences."
 )
 
-WORLD_LORE_PROMPT = """
-Generate world lore for a fantasy RPG. The world has two towns: Thornwall (a well-established
-hunter settlement) and a second, harder eastern town. There is a monster hunting guild.
-The main monster type is slimes. Something unknown is stirring in the eastern reach.
+
+def build_world_lore_prompt(lore_seed: str) -> str:
+    seed_section = (
+        f"\nThe following is fixed canonical lore about Thornwall that must be "
+        f"respected and built upon. Do not contradict it:\n\n{lore_seed}\n"
+        if lore_seed else ""
+    )
+    return f"""
+Generate world lore for a fantasy RPG.{seed_section}
+The world has two towns: Thornwall (a well-established hunter settlement with the history
+described above) and a second, harder eastern town of your own creation. There is a Monster
+Hunters Guild. The main monster type is slimes. Something unknown is stirring in the eastern
+reach.
 
 Respond ONLY with this exact JSON structure:
-{
-  "world": {
+{{
+  "world": {{
     "name": "string -- the name of the region",
     "lore_facts": ["string", "string", "string"]
-  },
-  "towns": {
-    "thornwall": {
+  }},
+  "towns": {{
+    "thornwall": {{
       "display_name": "Thornwall",
       "lore_facts": ["string", "string", "string"]
-    },
-    "town_2": {
+    }},
+    "town_2": {{
       "display_name": "string -- generate a name for this eastern town",
       "lore_facts": ["string", "string"]
-    }
-  }
-}
+    }}
+  }}
+}}
 
 Each lore_fact must be one sentence. Make them varied and atmospheric.
+Thornwall lore_facts should reflect and extend the canonical history above.
 """
 
 
-def generate_world_lore() -> dict:
+def generate_world_lore(lore_seed: str = "") -> dict:
     logger.info("Generating world lore...")
-    result = call_ollama_json(prompt=WORLD_LORE_PROMPT, system=WORLD_LORE_SYSTEM)
+    result = call_ollama_json(
+        prompt=build_world_lore_prompt(lore_seed),
+        system=WORLD_LORE_SYSTEM,
+    )
 
     if isinstance(result, dict) and "world" in result and "towns" in result:
         logger.info("World lore generated successfully.")
@@ -181,24 +305,44 @@ def validate_variant(data: dict) -> bool:
     return REQUIRED_VARIANT_FIELDS.issubset(data.keys())
 
 
-def generate_variants_for_role(role: str) -> list[dict]:
-    archetype = load_archetype(role)
-    prompt    = archetype["generation_prompt"]
+def generate_variants_for_role(
+    role: str,
+    lore_seed: str = "",
+    used_names: set | None = None,
+    shared_rules: str = "",
+) -> list[dict]:
+    archetype  = load_archetype(role)
+    prompt     = archetype["generation_prompt"]
     variants: list[dict] = []
+    taken      = set(used_names) if used_names else set()
+
+    # Prepend lore seed so generated NPCs share the same world context
+    lore_context = (
+        f"The following is fixed canonical lore about the town of Thornwall "
+        f"where this NPC lives. Your character must be consistent with it:\n\n"
+        f"{lore_seed}\n\n"
+        if lore_seed else ""
+    )
 
     for i in range(VARIANTS_PER_ARCHETYPE):
         label = VARIANT_LABELS[i]
         logger.info("Generating %s variant %s...", role, label)
 
+        # Combine names taken by prior roles with names used within this role
+        all_taken = taken | {v["name"] for v in variants}
         context = ""
-        if variants:
-            existing_names = [v["name"] for v in variants]
+        if all_taken:
             context = (
-                f"\nThe following names are already taken for this role: "
-                f"{', '.join(existing_names)}. Generate someone different."
+                f"\nThe following names are already in use and must not be repeated: "
+                f"{', '.join(sorted(all_taken))}. Generate a completely different name."
             )
 
-        result = call_ollama_json(prompt=prompt + context, system=NPC_GEN_SYSTEM)
+        full_prompt = lore_context + prompt
+        if shared_rules:
+            full_prompt += f"\n\n{shared_rules}"
+        full_prompt += context
+
+        result = call_ollama_json(prompt=full_prompt, system=NPC_GEN_SYSTEM)
 
         if isinstance(result, dict) and validate_variant(result):
             result["role"]       = role
@@ -268,6 +412,18 @@ def write_world_registry(registry: dict) -> None:
 # ── Initialise game_state.json ────────────────────────────────────────────────
 
 def initialise_game_state(player_name: str) -> None:
+    if GAME_STATE_FILE.exists():
+        try:
+            existing = json.loads(GAME_STATE_FILE.read_text())
+            if existing.get("meta", {}).get("day", 0) > 0:
+                logger.info(
+                    "game_state.json already has progress (day %d). Skipping.",
+                    existing["meta"]["day"],
+                )
+                return
+        except (json.JSONDecodeError, KeyError):
+            pass
+
     state = {
         "meta": {"schema_version": "1.0", "day": 1},
         "player_name": player_name,
@@ -342,27 +498,48 @@ def main() -> None:
     player_name = get_player_name()
     logger.info("Hero name: %s", player_name)
 
-    # 2. World lore
-    lore = generate_world_lore()
+    # 2. Load lore seed
+    lore_seed = load_thornwall_lore()
+
+    # 3. World lore
+    lore = generate_world_lore(lore_seed)
     write_world_lore(lore)
 
-    # 3. NPC variants per archetype role
+    # 4. Load shared NPC generation rules and name usage tracking
+    npc_rules  = load_npc_rules()
+    name_usage = load_name_usage()
+
+    # 5. NPC variants per archetype role
+    # used_names is shared across all roles so the same first name
+    # cannot appear in two different NPCs in the same world.
     all_variants: dict[str, list[dict]] = {}
+    used_names: set[str] = set()
     for role in ARCHETYPE_ROLES:
-        variants = generate_variants_for_role(role)
+        # Rebuild shared rules prompt each iteration so the naming
+        # exclusion list reflects names generated so far this run.
+        shared_rules = build_shared_rules_prompt(npc_rules, name_usage, used_names)
+        variants = generate_variants_for_role(role, lore_seed, used_names, shared_rules)
+        for v in variants:
+            name = v.get("name", "")
+            used_names.add(name)
+            record_name(name, name_usage)
         write_variants(role, variants)
         all_variants[role] = variants
 
-    # 4. World registry
+    # Save updated name usage counts after all variants are generated
+    save_name_usage(name_usage)
+    logger.info("Name usage saved.")
+
+    # 6. World registry
     registry = build_world_registry(all_variants, lore)
     write_world_registry(registry)
 
-    # 5. Initialise game_state.json
+    # 7. Initialise game_state.json -- force reset for new world
     if GAME_STATE_FILE.exists():
         GAME_STATE_FILE.unlink()
     initialise_game_state(player_name)
 
-    # 6. Generate day 1 dialogue
+    # 8. Generate day 1 dialogue
     run_initial_dialogue_generation()
 
     # Summary

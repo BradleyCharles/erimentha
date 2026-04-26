@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0",
+  "description": "Tracks first name usage across all world generation runs. Names that reach retired_threshold are added to retired_names and excluded from future generation prompts.",
+  "retired_threshold": 5,
+  "first_name_counts": {},
+  "retired_names": []
+}

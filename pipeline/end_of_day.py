@@ -42,6 +42,7 @@ from config import (
     WORLD_REG_FILE,
     GAME_STATE_FILE,
     RUMORS_FILE,
+    THORNWALL_LORE,
 )
 from ollama_client import call_ollama_json, call_ollama
 from nl_descriptors import (
@@ -156,6 +157,8 @@ Rules you must follow:
 - "greeting" node is required and is always the first node shown.
 - "farewell" node is required. All responses in "farewell" must have "next": null.
 - Every "next" value must be either null or the exact ID of another node in your JSON.
+- NEVER use "greeting" as a "next" value. Once a topic is done, point to "farewell" or null.
+- Every branch must have a path that eventually reaches "farewell" or null.
 - Generate 4 to 7 nodes total.
 - Player responses should be short (under 10 words).
 - Your NPC lines should feel natural and in-character -- 1 to 3 sentences each.
@@ -189,9 +192,16 @@ def build_prompt(
     town_name = world_lore.get("towns", {}).get(town_id, {}).get("display_name", "the town")
 
     # ── System prompt ──────────────────────────────────────────────────────────
+    lore_seed = THORNWALL_LORE.read_text().strip() if THORNWALL_LORE.exists() else ""
+    lore_seed_section = (
+        f"\nThe following is fixed canonical lore about the town where you live. "
+        f"Your dialogue must be consistent with it:\n{lore_seed}\n"
+        if lore_seed else ""
+    )
     system = (
         f"You are {name}, a {role} in the town of {town_name}.\n"
-        f"{fragment}\n\n"
+        f"{fragment}\n"
+        f"{lore_seed_section}\n"
         "You are generating today's dialogue for a fantasy RPG. "
         "Stay in character at all times. "
         "Respond ONLY with valid JSON matching the schema you are given. "
@@ -303,6 +313,24 @@ def validate_dialogue(data: dict) -> tuple[bool, str]:
     farewell_responses = nodes["farewell"].get("responses", [])
     if any(r.get("next") is not None for r in farewell_responses):
         return False, "Farewell node responses must all have 'next': null."
+
+    # Cycle detection -- every node must have a path to farewell or null
+    def _can_reach_exit(node_id: str, visited: set) -> bool:
+        if node_id in visited:
+            return False
+        visited.add(node_id)
+        node = nodes.get(node_id, {})
+        for r in node.get("responses", []):
+            next_val = r.get("next")
+            if next_val is None:
+                return True
+            if _can_reach_exit(next_val, visited.copy()):
+                return True
+        return False
+
+    for node_id in nodes:
+        if not _can_reach_exit(node_id, set()):
+            return False, f"Node '{node_id}' has no path to an exit (circular or dead end)."
 
     return True, ""
 

@@ -19,6 +19,10 @@ GENERATED_DIR    = ARCHETYPES_DIR / "generated"
 DIALOGUE_DIR     = PROJECT_ROOT / "dialogue"
 CHRONICLES_DIR   = PROJECT_ROOT / "chronicles"
 FALLBACKS_DIR    = Path(__file__).parent / "fallbacks"
+LORE_DIR         = Path(__file__).parent / "lore"
+THORNWALL_LORE   = LORE_DIR / "thornwall.txt"
+NPC_RULES_FILE   = PROJECT_ROOT / "archetypes" / "npc_generation_rules.json"
+NAME_USAGE_FILE  = PROJECT_ROOT / "archetypes" / "name_usage.json"
 
 GAME_STATE_FILE   = PROJECT_ROOT / "game_state.json"
 WORLD_LORE_FILE   = PROJECT_ROOT / "world_lore.json"
@@ -37,7 +41,7 @@ RETRY_DELAY = 2.0        # seconds between retries
 
 # ── World generation ──────────────────────────────────────────────────────────
 
-VARIANTS_PER_ARCHETYPE = 3   # how many variants to generate per NPC role
+VARIANTS_PER_ARCHETYPE = 1   # one variant per role for the demo
 
 # ── Archetype roles present in the demo ──────────────────────────────────────
 
